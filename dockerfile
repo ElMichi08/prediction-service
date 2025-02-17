@@ -5,7 +5,7 @@ FROM python:3.10-slim
 RUN apt-get update && apt-get install -y git
 
 # Clonamos el repositorio de Git
-RUN git clone https://github.com/tu_usuario/tu_repositorio.git /app
+RUN git clone https://github.com/ElMichi08/prediction-service.git /app
 
 # Establecemos el directorio de trabajo
 WORKDIR /app
