@@ -1,19 +1,34 @@
 # Usamos una imagen base de Python
 FROM python:3.10-slim
 
-# Instalar Git
-RUN apt-get update && apt-get install -y git
+# Instalar dependencias del sistema
+RUN apt-get update && \
+    apt-get install -y \
+    git \
+    build-essential \
+    python3-dev \
+    libgomp1 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Clonamos el repositorio de Git
-RUN git clone https://github.com/ElMichi08/prediction-service.git
+# Clonar repositorio directamente en /app
+RUN git clone https://github.com/ElMichi08/prediction-service.git /app
 
-# Establecemos el directorio de trabajo
+# Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar las dependencias directamente desde el Dockerfile
-RUN pip install --no-cache-dir fastapi scikit-learn uvicorn pandas numpy
+# Instalar dependencias de Python
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn \
+    scikit-learn \
+    pandas \
+    numpy \
+    joblib
 
-# Exponer el puerto para FastAPI
+# Entrenar el modelo y generar archivos .pkl durante el build
+RUN python -c "from app.model import predict; print('Modelo y scaler cargados exitosamente')"
+
+# Exponer puerto
 EXPOSE 8000
 
 # Comando para ejecutar la API
