@@ -4,10 +4,9 @@ from app.model import predict
 
 app = FastAPI()
 
-# Esquema CORREGIDO
 class PredictionInput(BaseModel):
-    pais_origen: str  # "China" o "México"
-    producto: str     # "Producto_A", "Producto_B" o "Producto_C"
+    pais_origen: str
+    producto: str
     cantidad_pedida: int
     tiempo_llegada: int
 

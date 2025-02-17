@@ -13,6 +13,9 @@ RUN apt-get update && \
 # Clonar repositorio directamente en /app
 RUN git clone https://github.com/ElMichi08/prediction-service.git /app
 
+# Copiar el archivo data.csv al contenedor si es necesario
+COPY ./data.csv /app/data.csv
+
 # Establecer directorio de trabajo
 WORKDIR /app
 
@@ -24,9 +27,6 @@ RUN pip install --no-cache-dir \
     pandas \
     numpy \
     joblib
-
-# Entrenar el modelo y generar archivos .pkl durante el build
-RUN python -c "from app.model import predict; print('Modelo y scaler cargados exitosamente')"
 
 # Exponer puerto
 EXPOSE 8000
