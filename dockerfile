@@ -10,12 +10,11 @@ RUN git clone https://github.com/ElMichi08/prediction-service.git
 # Establecemos el directorio de trabajo
 WORKDIR /app
 
-# Instalar las dependencias
-RUN pip install --no-cache-dir -r requirements.txt
+# Instalar las dependencias directamente desde el Dockerfile
+RUN pip install --no-cache-dir fastapi scikit-learn uvicorn pandas numpy
 
 # Exponer el puerto para FastAPI
 EXPOSE 8000
-#Comandos aun pendientes
 
 # Comando para ejecutar la API
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
