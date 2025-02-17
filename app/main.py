@@ -1,42 +1,31 @@
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from app.model import predict  # Asegúrate de que tu función predict esté adaptada
-import pandas as pd
+from pydantic import BaseModel
+from app.model import predict
 
 app = FastAPI()
 
-@app.get("/predict-all/")
-def predict_all():
-    try:
-        # Cargar datos desde el CSV
-        df = pd.read_csv("/app/data.csv")
-        
-        # Lista para almacenar todas las predicciones
-        predictions = []
-        
-        # Iterar sobre cada fila del DataFrame
-        for _, row in df.iterrows():
-            # Crear el input_data en el formato que espera tu modelo
-            input_data = [
-                row["pais_origen_China"], 
-                row["pais_origen_México"], 
-                row["producto_Producto_A"], 
-                row["producto_Producto_B"], 
-                row["producto_Producto_C"], 
-                row["cantidad_pedida"], 
-                row["tiempo_llegada"]
-            ]
-            
-            # Obtener la predicción
-            prediction = predict(input_data)
-            
-            # Guardar resultado
-            predictions.append({
-                "id": _,
-                "predicted_cantidad_a_pedir": round(prediction, 2)
-            })
-        
-        return JSONResponse(content={"predictions": predictions})
+# Esquema CORREGIDO
+class PredictionInput(BaseModel):
+    pais_origen: str  # "China" o "México"
+    producto: str     # "Producto_A", "Producto_B" o "Producto_C"
+    cantidad_pedida: int
+    tiempo_llegada: int
+
+@app.post("/predict/")
+def make_prediction(input_data: PredictionInput):
+    # Convertir a variables dummy
+    data = {
+        "pais_origen_China": 1 if input_data.pais_origen == "China" else 0,
+        "pais_origen_México": 1 if input_data.pais_origen == "México" else 0,
+        "producto_Producto_A": 1 if input_data.producto == "Producto_A" else 0,
+        "producto_Producto_B": 1 if input_data.producto == "Producto_B" else 0,
+        "producto_Producto_C": 1 if input_data.producto == "Producto_C" else 0,
+        "cantidad_pedida": input_data.cantidad_pedida,
+        "tiempo_llegada": input_data.tiempo_llegada
+    }
     
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    # Ordenar según las columnas esperadas por el modelo
+    ordered_data = [data[col] for col in predict.expected_columns]
+    
+    prediction = predict(ordered_data)
+    return {"predicted_cantidad_a_pedir": round(prediction, 2)}
